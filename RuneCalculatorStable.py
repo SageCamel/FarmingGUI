@@ -18,8 +18,25 @@ Total_Seconds = 0
 
 txtTime_Expression = 0
 
-
 stop = True
+
+def Stop_Time():
+    global stop
+
+    print(stop)
+
+    if stop == 0:
+        stop = True
+    elif stop == 1:
+        stop = False
+
+def Start_time():
+    global stop
+
+    stop = False
+
+    t = thrd.Thread(target=TimeExpresionCalcutaion)
+    t.start()
 
 def RuneCalculate():
     global x, y, z, Total_Seconds
@@ -45,39 +62,52 @@ def TimeCalcutaion():
     print("Minutes = " + str(minutes))
     print("Hours = " + str(hours))
 
+    Clock_lbl.configure(text=f"{hours:02}:{minutes:02}:{seconds:02}")
+    Clock_lbl.update()
+
     txtTime_Expression = f"{hours:02}:{minutes:02}:{seconds:02}"
 
 def DataBox_Voicing():
 
     DataBox.delete(1.0, "end")
     DataBox.insert(1.0, txtTime_Expression )
-    DataBox.insert(1.0, "will take... ")
-    DataBox.insert(1.0, "Each loop taking " + str(z) + " seconds ")
-    DataBox.insert(1.0, "Makes " + str(math.ceil(x/y)) + " farming loops ")
-    DataBox.insert(1.0, "At a rate of " + str(y) + " runes per farming loop ")
-    DataBox.insert(1.0, "Gathering " + str(x) + " Runes ")
+    DataBox.insert(1.0, "will take... " + "( " + str(y/z) + " Runes per Second )" + '\n')
+    DataBox.insert(1.0, "Each loop taking " + str(z) + " seconds " + '\n')
+    DataBox.insert(1.0, "Makes " + str(math.ceil(x/y)) + " farming loops " + '\n')
+    DataBox.insert(1.0, "At a rate of " + str(y) + " runes per farming loop " + '\n')
+    DataBox.insert(1.0, "Gathering " + str(x) + " Runes " + '\n')
 
 def RuneMathButton():
     RuneCalculate()
     TimeCalcutaion()
     DataBox_Voicing()
 
-def Stop_Time():
-    global stop
+def TimeExpresionCalcutaion():
 
-    stop = True
+    BankedSeconds = 0
+    
+    BankedSeconds = Total_Seconds + z
 
-def Start_time():
 
-    pass
+    while BankedSeconds > 0 and stop == 0:
 
+        BankedSeconds -= 1
+    
+        BSseconds = BankedSeconds % 60
+        BSminutes = math.floor((BankedSeconds / 60) % 60)
+        BShours =  math.floor(((BankedSeconds / 60) / 60) % 60)
+
+        
+        Clock_lbl.configure(text=f"{BShours:02}:{BSminutes:02}:{BSseconds:02}")
+        Clock_lbl.update()
+        tm.sleep(1)
 
 # GUI instructions
 
 
 root = tk.Tk()
 
-root.geometry("700x360")
+root.geometry("770x360")
 root.title("Rune Calclator")
 
 #Entry frame, intake of details
@@ -120,7 +150,7 @@ Results_Frame.place(x=320, y=10)
 
 
 
-DataBox = tk.Text(Results_Frame, height=5, width=28, font=("helvetica", 16))
+DataBox = tk.Text(Results_Frame, height=7, width=35, font=("helvetica", 16))
 DataBox.grid(row=0, column=0, columnspan=2, padx=10, pady=10,)
 
 STRTtime = tk.Button(Results_Frame, text="Start", font=("papyrus", 12), command=Start_time)
